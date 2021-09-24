@@ -1,0 +1,128 @@
+name: Contexts and Default environment variables
+on: workflow_dispatch
+jobs:
+  github-context:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Contexts - github.*
+        run: |-
+          echo 'See: https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+          To dump the whole github context as JSON, use ${{ '${{ toJSON(github) }}' }}
+          github = ${{ github }}
+          github.action = ${{ github.action }}
+          github.action_path = ${{ github.action_path }}
+          github.actor = ${{ github.actor }}
+          github.base_ref = ${{ github.base_ref }}
+          github.event = ${{ github.event }}
+          github.event_name = ${{ github.event_name }}
+          github.event_path = ${{ github.event_path }}
+          github.head_ref = ${{ github.head_ref }}
+          github.job = ${{ github.job }}
+          github.ref = ${{ github.ref }}
+          github.repository = ${{ github.repository }}
+          github.repository_owner = ${{ github.repository_owner }}
+          github.run_id = ${{ github.run_id }}
+          github.run_number = ${{ github.run_number }}
+          github.sha = ${{ github.sha }}
+          github.workflow = ${{ github.workflow }}
+          github.workspace = ${{ github.workspace }}
+          '
+  env-context-and-default-environment-variables:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Contexts - env.*
+        env:
+          TEST_ENV: case-sensitive
+        run: |-
+          echo 'See: https://docs.github.com/en/actions/learn-github-actions/contexts#env-context
+          env = ${{ toJSON(env) }}
+          env.TEST_ENV = ${{ env.TEST_ENV }}
+          env.test_env = ${{ env.test_env }}
+          '
+      - name: Default environment variables
+        run: |-
+          echo "See: https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
+          CI = $CI
+          GITHUB_ACTION = $GITHUB_ACTION
+          GITHUB_ACTION_PATH = $GITHUB_ACTION_PATH
+          GITHUB_ACTIONS = $GITHUB_ACTIONS
+          GITHUB_ACTOR = $GITHUB_ACTOR
+          GITHUB_API_URL = $GITHUB_API_URL
+          GITHUB_BASE_REF = $GITHUB_BASE_REF
+          GITHUB_EVENT_NAME = $GITHUB_EVENT_NAME
+          GITHUB_EVENT_PATH = $GITHUB_EVENT_PATH
+          GITHUB_GRAPHQL_URL = $GITHUB_GRAPHQL_URL
+          GITHUB_HEAD_REF = $GITHUB_HEAD_REF
+          GITHUB_JOB = $GITHUB_JOB
+          GITHUB_REF = $GITHUB_REF
+          GITHUB_REPOSITORY = $GITHUB_REPOSITORY
+          GITHUB_RUN_ID = $GITHUB_RUN_ID
+          GITHUB_RUN_NUMBER = $GITHUB_RUN_NUMBER
+          GITHUB_SERVER_URL = $GITHUB_SERVER_URL
+          GITHUB_SHA = $GITHUB_SHA
+          GITHUB_WORKFLOW = $GITHUB_WORKFLOW
+          GITHUB_WORKSPACE = $GITHUB_WORKSPACE
+          RUNNER_NAME = $RUNNER_NAME
+          RUNNER_OS = $RUNNER_OS
+          RUNNER_TEMP = $RUNNER_TEMP
+          RUNNER_TOOL_CACHE = $RUNNER_TOOL_CACHE
+          "
+  job-context:
+    runs-on: ubuntu-latest
+    container: busybox
+    services:
+      alpine:
+        image: alpine
+        ports:
+          - 80:8080
+    steps:
+      - name: Contexts - job.*
+        run: |-
+          echo 'See: https://docs.github.com/en/actions/learn-github-actions/contexts#job-context
+          job = ${{ toJSON(job) }}
+          job.container.id = ${{ job.container.id }}
+          job.container.network = ${{ job.container.network }}
+          job.services.alpine.id = ${{ job.services.alpine.id }}
+          job.services.alpine.network = ${{ job.services.alpine.network }}
+          job.services.alpine.ports = ${{ job.services.alpine.ports }}
+          job.status = ${{ job.status }}
+          '
+  steps-context:
+    runs-on: ubuntu-latest
+    outputs:
+      test-message: ${{ steps.step-with-id.outputs.test-message }}
+    steps:
+      - name: Step with id
+        id: step-with-id
+        run: echo '::set-output name=test-message::The step with id in the ${{ github.job }} job that have already run.'
+      - name: Step without id
+        run: echo 'The step without id is ignored in the steps context.'
+      - name: Contexts - steps.*
+        run: |-
+          echo 'See: https://docs.github.com/en/actions/learn-github-actions/contexts#steps-context
+          steps = ${{ toJSON(steps) }}
+          steps.step-with-id.outputs = ${{ toJSON(steps.step-with-id.outputs) }}
+          steps.step-with-id.conclusion = ${{ steps.step-with-id.conclusion }}
+          steps.step-with-id.outcome = ${{ steps.step-with-id.outcome }}
+          '
+  runner-context:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Contexts - runner.*
+        run: |-
+          echo 'See: https://docs.github.com/en/actions/learn-github-actions/contexts#runner-context
+          runner = ${{ toJSON(runner) }}
+          runner.name = ${{ runner.name }}
+          runner.os = ${{ runner.os }}
+          runner.temp = ${{ runner.temp }}
+          runner.tool_cache = ${{ runner.tool_cache }}
+          '
+  needs-context:
+    needs: [steps-context, runner-context]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Contexts - needs.*
+        run: |-
+          echo 'See: https://docs.github.com/en/actions/learn-github-actions/contexts#needs-context
+          needs = ${{ toJSON(needs) }}
+          '
